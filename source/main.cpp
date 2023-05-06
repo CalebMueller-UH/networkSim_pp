@@ -1,18 +1,16 @@
 #include <iostream>
 
-#include "LoggerClass.hpp"
+#include "Logger.hpp"
+#include "Net.hpp"
 
-int main() {
-  Logger *syslogx = new Logger("syslogx");
+int main(int argc, char** argv) {
+  Logger syslogx = Logger("syslogx");
 
-  for (int i = 0; i < 1000000; i++) {
-    syslogx->record("Test1", Logger::Priority::Debug);
-    syslogx->record("Test2", Logger::Priority::Info);
-    syslogx->record("Test3", Logger::Priority::Warning);
-    syslogx->record("Test4", Logger::Priority::Error);
+  std::vector<std::unique_ptr<NetNode>> nodes = netInit("Config/c1.config");
+
+  for (int i = 0;; i++) {
+    syslogx.record(i);
   }
-
-  // syslogx->clear();
 
   return 0;
 }
