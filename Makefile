@@ -6,6 +6,9 @@ CFLAGS=-c -Wall
 # -c: compile into object files
 # -Wall: enable all warnings
 
+# Include directory
+CPPFLAGS := -Iinclude
+
 # Debug flags
 DEBUG_FLAGS=-DDEBUG -g -O0
 # -DDEBUG: Define DEBUG for compiled files
@@ -46,7 +49,7 @@ $(EXEC): $(OBJS)
 
 # Rule to build object files without debug flags
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(INCS)
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 # Rule to build the debug executable
 debug: CFLAGS += $(DEBUG_FLAGS)
