@@ -34,23 +34,24 @@ class Logger {
       return 0;
     }
     stringstream ss;
-    ss << "▹[" << currentDateTime() << "] ";
+    ss << "▹[" << currentDateTime() << "]";
     switch (priority) {
       case Priority::Debug:
-        ss << "[DEBUG] ";
+        ss << "[DEBUG]\t";
         break;
       case Priority::Info:
-        ss << "[INFO] ";
+        ss << "[INFO]\t";
         break;
       case Priority::Warning:
-        ss << "[WARNING] ";
+        ss << "[WARNING]\t";
         break;
       case Priority::Error:
-        ss << "[ERROR] ";
+        ss << "[ERROR]\t";
         break;
       default:
         break;
     }
+
     ((ss << args << " "),
      ...);       // add arguments to stringstream with a space separator
     ss << endl;  // add newline character to stringstream

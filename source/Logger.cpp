@@ -4,7 +4,7 @@
 Logger::Logger(string instanceName, size_t maxFileSize) {
   this->instanceName = instanceName;
   this->maxFileSize = maxFileSize;
-  this->setDefaultLogLevel(Priority::Debug);
+  this->setDefaultLogLevel(Priority::Warning);
   logFile_path = "Logs/" + instanceName + ".log";
   openLogFile();
   minLogLevel = Priority::Debug;
