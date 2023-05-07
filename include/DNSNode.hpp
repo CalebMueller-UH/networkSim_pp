@@ -7,8 +7,10 @@ class DNSNode : public NetNode {
   // Constructors //
   DNSNode(int id) : NetNode(id, NodeType::DNS) {}
 
-  // Main Method Stub //
-  void main() {
-    // TODO: Implement main logic for DNSNode
+  void main() override {
+    static bool isFirst = 1;
+    if (isFirst) {
+      cout << "DNSNode" << this->getId() << " is running." << endl;
+    }
   }
 };  // End of DNSNode class

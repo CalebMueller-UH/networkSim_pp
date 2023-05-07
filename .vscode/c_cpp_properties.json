@@ -6,7 +6,9 @@
                 "${workspaceFolder}/**",
                 "/usr/local/boost_1_82_0",
                 "${workspaceFolder}/include",
-                "${workspaceFolder}/include"
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/include/Links",
+                "${workspaceFolder}/include/Nodes"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

@@ -7,8 +7,10 @@ class HostNode : public NetNode {
   // Constructors //
   HostNode(int id) : NetNode(id, NodeType::Host) {}
 
-  // Main Method Stub //
-  void main() {
-    // TODO: Implement main logic for HostNode
+  void main() override {
+    static bool isFirst = 1;
+    if (isFirst) {
+      cout << "HostNode" << this->getId() << " is running." << endl;
+    }
   }
 };  // End of HostNode class

@@ -18,6 +18,8 @@
 #include "Manager.hpp"
 #include "NetLink.hpp"
 #include "NetNode.hpp"
+#include "PipeLink.hpp"
+#include "SocketLink.hpp"
 #include "SwitchNode.hpp"
 
 using namespace std;

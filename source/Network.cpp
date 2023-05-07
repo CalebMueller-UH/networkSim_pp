@@ -30,7 +30,7 @@ void Network::printNetwork() const {
       cout << color_codes[BOLD_GREEN].code;  // Set to color BOLD_GREEN
       cout << "Node " << node->getId() << " is a " << node->getTypeLiteral()
            << " and has " << node->getLinks().size() << " link"
-           << ((node->getLinks().size() > 1) ? "s." : ".") << endl;
+           << ((node->getLinks().size() != 1) ? "s." : ".") << endl;
       for (auto& link : node->getLinks()) {
         if (link == nullptr) {
           continue;  // skip null pointers
@@ -120,6 +120,7 @@ int Network::netInit(std::string configFileName) {
       }
 
       addNode(std::move(newNode));
+
     } else if (isLinksSection) {
       numLinks++;  // Count the number of links
 
@@ -130,13 +131,25 @@ int Network::netInit(std::string configFileName) {
       std::istringstream iss(line);
       iss >> c_linkType >> con1 >> con2;
 
+      std::shared_ptr<NetLink> newLink;
+
       // Initialize depending on link type
       switch (c_linkType) {
         case 'P': {
+          newLink = std::make_shared<PipeLink>(numLinks, con1, con2);
           break;
         }
         case 'S': {
+          newLink = std::make_shared<SocketLink>(numLinks, con1, con2);
           break;
+        }
+      }
+
+      // Add the shared pointer of the NetLink to the Nodes matching the _id
+      // values and the con1 and con2 values.
+      for (auto& node : this->getNodes()) {
+        if (node->getId() == con1 || node->getId() == con2) {
+          node->addLink(newLink);
         }
       }
     }

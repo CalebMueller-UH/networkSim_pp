@@ -35,6 +35,8 @@ class NetNode {
   // from already existing link
   void addLink(const std::shared_ptr<NetLink>& link);
 
+  virtual void main() {}
+
  private:
   int _id{-1};
   NodeType _type{NodeType::Host};
