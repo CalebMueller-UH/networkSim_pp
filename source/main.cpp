@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
   }
 
   Network network = Network();
-  network.netInit("Config/c1.config");
+  network.netInit(argv[1]);
   network.printNetwork();
 
   return 0;

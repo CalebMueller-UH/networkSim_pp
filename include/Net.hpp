@@ -9,6 +9,7 @@
 
 #include "Color.hpp"
 #include "Logger.hpp"
+#include "Manager.hpp"
 
 using namespace std;
 
@@ -59,7 +60,7 @@ class NetNode {
 
   // Adders //
   // from already existing link
-  void addLink(const NetLink& link);
+  void addLink(const std::shared_ptr<NetLink>& link);
 
   // Specify arguments, and create the link to add
   void addLink(int id, int node1Id, int node2Id,
@@ -68,7 +69,7 @@ class NetNode {
  private:
   int _id{-1};
   NodeType _type{NodeType::Host};
-  std::vector<std::unique_ptr<NetLink>> links;
+  std::vector<std::shared_ptr<NetLink>> links;
 };  // End of NetNode class
 
 //////// NETWORK BEGIN ////////
@@ -96,22 +97,27 @@ class Network {
   }
 
   void printNetwork() const {
-    cout << color_codes[BOLD_GREEN].code;  // Set to color BOLD_GREEN
-    cout << "Number of Nodes = " << numNodes << endl;
-    cout << "Number of Links = " << numLinks << endl;
-    for (auto& node : _nodes) {
+    if (_nodes.size() > 0) {
       cout << color_codes[BOLD_GREEN].code;  // Set to color BOLD_GREEN
-      cout << "Node " << node->getId() << " is a " << node->getTypeLiteral()
-           << " and has " << node->getLinks().size() << " link"
-           << ((node->getLinks().size() > 1) ? "s." : ".") << endl;
-      for (auto& link : node->getLinks()) {
-        cout << color_codes[BLUE].code;  // Set to color BLUE
-        cout << "\tLink " << link->getId() << " is a " << link->getTypeLiteral()
-             << " from " << link->getNodeIds().first << " → "
-             << link->getNodeIds().second << endl;
+      cout << "Number of Nodes = " << numNodes << endl;
+      cout << "Number of Links = " << numLinks << endl;
+      for (auto& node : _nodes) {
+        cout << color_codes[BOLD_GREEN].code;  // Set to color BOLD_GREEN
+        cout << "Node " << node->getId() << " is a " << node->getTypeLiteral()
+             << " and has " << node->getLinks().size() << " link"
+             << ((node->getLinks().size() > 1) ? "s." : ".") << endl;
+        for (auto& link : node->getLinks()) {
+          cout << color_codes[BLUE].code;  // Set to color BLUE
+          cout << "\tLink " << link->getId() << " is a "
+               << link->getTypeLiteral() << " from " << link->getNodeIds().first
+               << " → " << link->getNodeIds().second << endl;
+        }
       }
+      cout << color_codes[BOLD_GREEN].reset;  // Reset to color default
+    } else {
+      cout << color_codes[RED].code << "Network is Empty"
+           << color_codes[RED].reset << endl;
     }
-    cout << color_codes[BOLD_GREEN].reset;  // Reset to color default
   }
 
   // netInit -- parses config file and builds the network topology
@@ -121,4 +127,5 @@ class Network {
   std::vector<std::unique_ptr<NetNode>> _nodes;
   int numNodes;
   int numLinks;
+  Manager _manager;
 };  // End of Network class

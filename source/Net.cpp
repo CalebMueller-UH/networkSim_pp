@@ -32,15 +32,13 @@ string NetNode::getTypeLiteral() {
   }
 }  // End of NetNode::getTypeLiteral()
 
-void NetNode::addLink(const NetLink& link) {
-  std::unique_ptr<NetLink> copiedLink(new NetLink(
-      link.getId(), link.getNodeIds().first, link.getNodeIds().second));
-  links.push_back(std::move(copiedLink));
+void NetNode::addLink(const std::shared_ptr<NetLink>& link) {
+  links.push_back(link);
 }  // End of NetNode::addLink()
 
 void NetNode::addLink(int id, int node1Id, int node2Id,
                       NetLink::LinkType type) {
-  std::unique_ptr<NetLink> link(new NetLink(id, node1Id, node2Id));
+  std::shared_ptr<NetLink> link(new NetLink(id, node1Id, node2Id));
   links.push_back(std::move(link));
 }  // End of NetNode::addLink(int, int, int, type)
 
@@ -56,10 +54,10 @@ std::vector<std::unique_ptr<NetNode>> Network::netInit(
 
   // Check if the file exists before attempting to open it
   if (!fileExists(configFileName)) {
-    std::cerr << "Error: Config file not found: " << configFileName
+    std::cerr << "netInit - Config file not found: " << configFileName
               << std::endl;
     netLog.log(Logger::Priority::Error,
-               "Error: Config file not found:", configFileName);
+               "netInit - Config file not found:", configFileName);
     return netNodes;
   }
 
@@ -103,18 +101,32 @@ std::vector<std::unique_ptr<NetNode>> Network::netInit(
       numNodes++;
       std::unique_ptr<NetNode> newNode;
       switch (c_nodeType) {
-        case 'H':
+        case 'H': {
           newNode = std::make_unique<NetNode>(nodeId, NetNode::NodeType::Host);
+
+          // Create a link between the Manager and the Host node
+          auto managerLink = std::make_shared<NetLink>(numLinks, -1, nodeId,
+                                                       NetLink::LinkType::Pipe);
+          numLinks++;
+
+          // Add the link to the Manager and the Host node
+          this->_manager.addLink(managerLink);
+          newNode->addLink(managerLink);
+
           break;
-        case 'S':
+        }
+        case 'S': {
           newNode =
               std::make_unique<NetNode>(nodeId, NetNode::NodeType::Switch);
           break;
-        case 'D':
+        }
+        case 'D': {
           newNode =
               std::make_unique<NetNode>(nodeId, NetNode::NodeType::DNServer);
           break;
+        }
       }
+
       addNode(std::move(newNode));
     } else if (isLinksSection) {  // Links section
       char c_linkType;
@@ -130,23 +142,28 @@ std::vector<std::unique_ptr<NetNode>> Network::netInit(
 
       // Create the link and add it to each node
       switch (c_linkType) {
-        case 'P':
+        case 'P': {
+          auto link = std::make_shared<NetLink>(numLinks, con1, con2,
+                                                NetLink::LinkType::Pipe);
           if (n1) {
-            n1->addLink(NetLink(numLinks, con1, con2, NetLink::LinkType::Pipe));
+            n1->addLink(link);
           }
           if (n2) {
-            n2->addLink(NetLink(numLinks, con1, con2, NetLink::LinkType::Pipe));
+            n2->addLink(link);
           }
           break;
-        case 'S':
+        }
+        case 'S': {
+          auto link = std::make_shared<NetLink>(numLinks, con1, con2,
+                                                NetLink::LinkType::Socket);
           if (n1) {
-            n1->addLink(
-                NetLink(numLinks, con1, con2, NetLink::LinkType::Socket));
+            n1->addLink(link);
           }
           if (n2) {
-            n2->addLink(
-                NetLink(numLinks, con1, con2, NetLink::LinkType::Socket));
+            n2->addLink(link);
           }
+          break;
+        }
       }
     }
   }
