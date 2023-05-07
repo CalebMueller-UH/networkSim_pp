@@ -12,21 +12,7 @@
 
 using namespace std;
 
-class NetNode {
- public:
-  enum class NodeType { Host, Switch, DNServer };
-  NetNode(int id) : _id{id} { cout << "Initializing " << _id << endl; }
-
-  ~NetNode() { cout << "Deleting " << _id << endl; }
-
-  int getId() const { return _id; }
-  NodeType getType() const { return _type; }
-
- private:
-  int _id{-1};
-  NodeType _type{NodeType::Host};
-};  // End of NetNode class
-
+//////// NETLINK BEGIN ////////
 class NetLink {
  public:
   enum class LinkType { Pipe, Socket };
@@ -42,23 +28,28 @@ class NetLink {
   int _node1Id{-1};
   int _node2Id{-1};
   LinkType _type{LinkType::Pipe};
-};
+};  // End of NetLink class
 
-class Network {
+//////// NETNODE BEGIN ////////
+class NetNode {
  public:
-  void addNode(std::unique_ptr<NetNode> node) {
-    nodes.push_back(std::move(node));
-  }
-  void addLink(std::unique_ptr<NetLink> link) {
-    links.push_back(std::move(link));
+  enum class NodeType { Host, Switch, DNServer };
+  NetNode(int id) : _id{id} {}
+
+  int getId() const { return _id; }
+  NodeType getType() const { return _type; }
+
+  // Add from already existing link
+  void addLink(const NetLink& link) {
+    std::unique_ptr<NetLink> copiedLink(new NetLink(
+        link.getId(), link.getNodeIds().first, link.getNodeIds().second));
+    links.push_back(std::move(copiedLink));
   }
 
-  std::vector<NetNode*> getNodes() const {
-    std::vector<NetNode*> result;
-    for (const auto& node : nodes) {
-      result.push_back(node.get());
-    }
-    return result;
+  // Specify arguments, and create the link to add
+  void addLink(int id, int node1Id, int node2Id) {
+    std::unique_ptr<NetLink> link(new NetLink(id, node1Id, node2Id));
+    links.push_back(std::move(link));
   }
 
   std::vector<NetLink*> getLinks() const {
@@ -69,15 +60,23 @@ class Network {
     return result;
   }
 
-  std::vector<NetNode*> getConnectedNodes(const NetNode& node) const {
+ private:
+  int _id{-1};
+  NodeType _type{NodeType::Host};
+  std::vector<std::unique_ptr<NetLink>> links;
+};  // End of NetNode class
+
+//////// NETWORK BEGIN ////////
+class Network {
+ public:
+  void addNode(std::unique_ptr<NetNode> node) {
+    nodes.push_back(std::move(node));
+  }
+
+  std::vector<NetNode*> getNodes() const {
     std::vector<NetNode*> result;
-    for (const auto& link : links) {
-      const auto& [node1Id, node2Id] = link->getNodeIds();
-      if (node1Id == node.getId()) {
-        result.push_back(getNodeById(node2Id));
-      } else if (node2Id == node.getId()) {
-        result.push_back(getNodeById(node1Id));
-      }
+    for (const auto& node : nodes) {
+      result.push_back(node.get());
     }
     return result;
   }
@@ -91,12 +90,25 @@ class Network {
     return nullptr;
   }
 
+  void printNetwork() const {
+    cout << color_codes[BOLD_GREEN].code;
+    for (auto& node : nodes) {
+      cout << "Node " << node->getId() << " has " << node->getLinks().size()
+           << " links." << endl;
+      for (auto& link : node->getLinks()) {
+        cout << "\tLink " << link->getId() << ": from "
+             << link->getNodeIds().first << " → " << link->getNodeIds().second
+             << endl;
+      }
+    }
+    cout << color_codes[BOLD_GREEN].reset;
+  }
+
  private:
   std::vector<std::unique_ptr<NetNode>> nodes;
-  std::vector<std::unique_ptr<NetLink>> links;
-};
+};  // End of Network class
 
 /*
     netInit -- parses config file and builds the network topology
 */
-std::vector<std::unique_ptr<NetNode>> netInit(std::string configFName);
+std::vector<std::unique_ptr<NetNode>> netInit(std::string configFileName);
