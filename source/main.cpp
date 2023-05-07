@@ -5,8 +5,22 @@
 #include "Logger.hpp"
 #include "Net.hpp"
 
+using namespace std;
+
+void printInstructions() {
+  std::cout
+      << "You must specify a configuration file when running this executable..."
+      << std::endl;
+  std::cout << "  Example:\t./netsim <config file name>" << std::endl;
+}
+
 int main(int argc, char** argv) {
-  Logger syslogx = Logger("syslogx");
+  Logger syslog = Logger("syslog");
+
+  if (argc <= 1) {
+    printInstructions();
+    return -1;
+  }
 
   Network network = Network();
   network.netInit("Config/c1.config");

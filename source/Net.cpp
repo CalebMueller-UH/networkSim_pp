@@ -2,18 +2,50 @@
 
 #include <sys/stat.h>
 
+#include "Common.hpp"
+
+///////////////////////////////
 //////// NETLINK BEGIN ////////
-// No functions to add here
+string NetLink::getTypeLiteral() {
+  switch (_type) {
+    case LinkType::Pipe:
+      return "Pipe";
+    case LinkType::Socket:
+      return "Socket";
+    default:
+      return "Unknown Node Type";
+  }
+}  // End of NetLink::getTypeLiteral()
 
+///////////////////////////////
 //////// NETNODE BEGIN ////////
+string NetNode::getTypeLiteral() {
+  switch (_type) {
+    case NodeType::Host:
+      return "Host";
+    case NodeType::Switch:
+      return "Switch";
+    case NodeType::DNServer:
+      return "DNServer";
+    default:
+      return "Unknown Node Type";
+  }
+}  // End of NetNode::getTypeLiteral()
 
+void NetNode::addLink(const NetLink& link) {
+  std::unique_ptr<NetLink> copiedLink(new NetLink(
+      link.getId(), link.getNodeIds().first, link.getNodeIds().second));
+  links.push_back(std::move(copiedLink));
+}  // End of NetNode::addLink()
+
+void NetNode::addLink(int id, int node1Id, int node2Id,
+                      NetLink::LinkType type) {
+  std::unique_ptr<NetLink> link(new NetLink(id, node1Id, node2Id));
+  links.push_back(std::move(link));
+}  // End of NetNode::addLink(int, int, int, type)
+
+///////////////////////////////
 //////// NETWORK BEGIN ////////
-
-// Helper function to determine if a configuration file exists
-bool fileExists(const std::string& path) {
-  struct stat buffer;
-  return (stat(path.c_str(), &buffer) == 0);
-}
 
 // netInit -- parses config file and builds the network topology
 std::vector<std::unique_ptr<NetNode>> Network::netInit(

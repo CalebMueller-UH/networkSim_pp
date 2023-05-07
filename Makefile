@@ -1,3 +1,10 @@
+# Directory for configuration files
+CONFIGDIR=Config
+
+# Default config file
+defaultConfigFile=c1.config
+
+
 # Compiler to use
 CC=g++
 
@@ -63,9 +70,15 @@ clean_if_release_exists:
 # Rule to build object files with debug flags
 $(EXEC_D): $(OBJS)
 	$(CC) $(OBJS) -o $@
+	./$(EXEC_D) $(CONFIGDIR)/$(defaultConfigFile)
 
 # Clean up all object files and the executables
 clean:
 	rm -f $(OBJ_DIR)/*.o $(EXEC) $(EXEC_D)
 
 .PHONY: debug
+
+# Rule to run the executable with the default config file
+run: $(EXEC)
+	./$(EXEC) $(CONFIGDIR)/$(defaultConfigFile)
+

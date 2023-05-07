@@ -17,26 +17,19 @@ class NetLink {
  public:
   enum class LinkType { Pipe, Socket };
   NetLink(int id, int node1Id, int node2Id, LinkType type = LinkType::Pipe)
-      : _id{id}, _node1Id{node1Id}, _node2Id{node2Id}, _type{type} {}
+      : _id{id}, _c1{node1Id}, _c2{node2Id}, _type{type} {}
 
   int getId() const { return _id; }
   LinkType getType() const { return _type; }
-  std::pair<int, int> getNodeIds() const { return {_node1Id, _node2Id}; }
-  string getTypeLiteral() {
-    switch (_type) {
-      case LinkType::Pipe:
-        return "Pipe";
-      case LinkType::Socket:
-        return "Socket";
-      default:
-        return "Unknown Node Type";
-    }
-  }
+  std::pair<int, int> getNodeIds() const { return {_c1, _c2}; }
+  string getTypeLiteral();
 
  private:
   int _id{-1};
-  int _node1Id{-1};
-  int _node2Id{-1};
+  int _c1{-1};
+  int _c2{-1};
+  int _c1_fd{-1};
+  int _c2_fd{-1};
   LinkType _type{LinkType::Pipe};
 };  // End of NetLink class
 
@@ -59,36 +52,18 @@ class NetNode {
     return result;
   }
 
-  string getTypeLiteral() {
-    switch (_type) {
-      case NodeType::Host:
-        return "Host";
-      case NodeType::Switch:
-        return "Switch";
-      case NodeType::DNServer:
-        return "DNServer";
-      default:
-        return "Unknown Node Type";
-    }
-  }
+  string getTypeLiteral();
 
   // Setters //
   void setType(NodeType type) { _type = type; }
 
   // Adders //
   // from already existing link
-  void addLink(const NetLink& link) {
-    std::unique_ptr<NetLink> copiedLink(new NetLink(
-        link.getId(), link.getNodeIds().first, link.getNodeIds().second));
-    links.push_back(std::move(copiedLink));
-  }
+  void addLink(const NetLink& link);
 
   // Specify arguments, and create the link to add
   void addLink(int id, int node1Id, int node2Id,
-               NetLink::LinkType type = NetLink::LinkType::Pipe) {
-    std::unique_ptr<NetLink> link(new NetLink(id, node1Id, node2Id));
-    links.push_back(std::move(link));
-  }
+               NetLink::LinkType type = NetLink::LinkType::Pipe);
 
  private:
   int _id{-1};
