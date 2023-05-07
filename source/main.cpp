@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "Logger.hpp"
-#include "Net.hpp"
+#include "Network.hpp"
 
 using namespace std;
 

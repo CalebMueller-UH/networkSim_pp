@@ -10,7 +10,7 @@
 
 #include "Color.hpp"
 #include "Logger.hpp"
-#include "Net.hpp"
+#include "Network.hpp"
 
 class NetLink;
 
