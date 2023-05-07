@@ -29,12 +29,20 @@ int main(int argc, char** argv) {
       switch (node->getType()) {
         case NetNode::NodeType::Host:
           node->main();
+          while (1) {
+          }
           break;
         case NetNode::NodeType::Switch:
           node->main();
+          while (1) {
+          }
           break;
         case NetNode::NodeType::DNS:
           node->main();
+          while (1) {
+          }
+          break;
+        default:
           break;
       }
       cout.flush();  // flush the buffer
@@ -43,6 +51,9 @@ int main(int argc, char** argv) {
       // Parent Process
     }
   }
+
+  // parent process calls single man->main()
+  network._manager->main();
 
   return 0;
 }

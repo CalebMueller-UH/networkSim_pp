@@ -21,6 +21,11 @@ void Network::addNode(std::unique_ptr<NetNode> node) {
   _nodes.push_back(std::move(node));
 }  // End of Network::addNode()
 
+void Network::addManager(std::unique_ptr<ManagerNode> node) {
+  // Move the unique_ptr into the _manager member variable
+  _manager = std::move(node);
+}
+
 void Network::printNetwork() const {
   if (_nodes.size() > 0) {
     cout << color_codes[BOLD_GREEN].code;  // Set to color BOLD_GREEN
@@ -46,7 +51,7 @@ void Network::printNetwork() const {
     cout << color_codes[RED].code << "Network is Empty"
          << color_codes[RED].reset << endl;
   }
-}
+}  // End of Network::printNetwork()
 
 int Network::netInit(std::string configFileName) {
   std::vector<std::unique_ptr<NetNode>> netNodes;
@@ -154,6 +159,20 @@ int Network::netInit(std::string configFileName) {
       }
     }
   }
+
+  // Create a unique_ptr to a ManagerNode instance
+  std::unique_ptr<ManagerNode> manager = std::make_unique<ManagerNode>(222);
+
+  // Add the manager
+  this->addManager(std::move(manager));
+
+  // // Set up a pipe link between the manager and every host
+  // for (auto& node : this->getNodes()) {
+  //   auto linkP = std::make_shared<PipeLink>(numLinks, con1, con2);
+  //   if (node->getType() == NetNode::NetType::Host) {
+  //     node->addLink(linkP);
+  //   }
+  // }
 
   return 1;
 }  // End of netInit()
