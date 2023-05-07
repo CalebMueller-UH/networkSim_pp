@@ -44,8 +44,8 @@ std::vector<std::unique_ptr<NetNode>> Network::netInit(
   colorPrint(BOLD_ORANGE, "Loading %s\n", configFileName.c_str());
 
   std::string line;
-  int numNodes = 0;
-  int numLinks = 0;
+  numNodes = 0;
+  numLinks = 0;
   bool isNodesSection = false;
   bool isLinksSection = false;
 
@@ -119,9 +119,5 @@ std::vector<std::unique_ptr<NetNode>> Network::netInit(
     }
   }
 
-  colorPrint(GREEN, "Number of Nodes = %d\n", numNodes);
-  colorPrint(GREEN, "Number of Links = %d\n", numLinks);
-
-  printNetwork();
   return netNodes;
 }  // End of netInit()

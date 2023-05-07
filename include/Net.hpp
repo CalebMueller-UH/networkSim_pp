@@ -22,6 +22,16 @@ class NetLink {
   int getId() const { return _id; }
   LinkType getType() const { return _type; }
   std::pair<int, int> getNodeIds() const { return {_node1Id, _node2Id}; }
+  string getTypeLiteral() {
+    switch (_type) {
+      case LinkType::Pipe:
+        return "Pipe";
+      case LinkType::Socket:
+        return "Socket";
+      default:
+        return "Unknown Node Type";
+    }
+  }
 
  private:
   int _id{-1};
@@ -47,6 +57,19 @@ class NetNode {
       result.push_back(link.get());
     }
     return result;
+  }
+
+  string getTypeLiteral() {
+    switch (_type) {
+      case NodeType::Host:
+        return "Host";
+      case NodeType::Switch:
+        return "Switch";
+      case NodeType::DNServer:
+        return "DNServer";
+      default:
+        return "Unknown Node Type";
+    }
   }
 
   // Setters //
@@ -77,19 +100,19 @@ class NetNode {
 class Network {
  public:
   void addNode(std::unique_ptr<NetNode> node) {
-    nodes.push_back(std::move(node));
+    _nodes.push_back(std::move(node));
   }
 
   std::vector<NetNode*> getNodes() const {
     std::vector<NetNode*> result;
-    for (const auto& node : nodes) {
+    for (const auto& node : _nodes) {
       result.push_back(node.get());
     }
     return result;
   }
 
   NetNode* getNodeById(int id) const {
-    for (const auto& node : nodes) {
+    for (const auto& node : _nodes) {
       if (node->getId() == id) {
         return node.get();
       }
@@ -98,22 +121,29 @@ class Network {
   }
 
   void printNetwork() const {
-    cout << color_codes[BOLD_GREEN].code;
-    for (auto& node : nodes) {
-      cout << "Node " << node->getId() << " has " << node->getLinks().size()
-           << " link" << ((node->getLinks().size() > 1) ? "s." : ".") << endl;
+    cout << color_codes[BOLD_GREEN].code;  // Set to color BOLD_GREEN
+    cout << "Number of Nodes = " << numNodes << endl;
+    cout << "Number of Links = " << numLinks << endl;
+    for (auto& node : _nodes) {
+      cout << color_codes[BOLD_GREEN].code;  // Set to color BOLD_GREEN
+      cout << "Node " << node->getId() << " is a " << node->getTypeLiteral()
+           << " and has " << node->getLinks().size() << " link"
+           << ((node->getLinks().size() > 1) ? "s." : ".") << endl;
       for (auto& link : node->getLinks()) {
-        cout << "\tLink " << link->getId() << ": from "
-             << link->getNodeIds().first << " → " << link->getNodeIds().second
-             << endl;
+        cout << color_codes[BLUE].code;  // Set to color BLUE
+        cout << "\tLink " << link->getId() << " is a " << link->getTypeLiteral()
+             << " from " << link->getNodeIds().first << " → "
+             << link->getNodeIds().second << endl;
       }
     }
-    cout << color_codes[BOLD_GREEN].reset;
+    cout << color_codes[BOLD_GREEN].reset;  // Reset to color default
   }
 
   // netInit -- parses config file and builds the network topology
   std::vector<std::unique_ptr<NetNode>> netInit(std::string configFileName);
 
  private:
-  std::vector<std::unique_ptr<NetNode>> nodes;
+  std::vector<std::unique_ptr<NetNode>> _nodes;
+  int numNodes;
+  int numLinks;
 };  // End of Network class
