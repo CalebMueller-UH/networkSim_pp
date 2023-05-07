@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unistd.h>
+
 #include <iostream>
 #include <memory>
 #include <ostream>
@@ -13,16 +15,25 @@
 
 using namespace std;
 
-//////// NETLINK BEGIN ////////
 class NetLink {
  public:
   enum class LinkType { Pipe, Socket };
   NetLink(int id, int node1Id, int node2Id, LinkType type = LinkType::Pipe)
-      : _id{id}, _c1{node1Id}, _c2{node2Id}, _type{type} {}
+      : _id{id}, _c1{node1Id}, _c2{node2Id}, _type{type} {
+    switch (_type) {
+      case LinkType::Pipe:
+        pipeSetup();
+        break;
+      case LinkType::Socket:
+        socketSetup();
+        break;
+    }
+  }
 
   int getId() const { return _id; }
-  LinkType getType() const { return _type; }
   std::pair<int, int> getNodeIds() const { return {_c1, _c2}; }
+  std::pair<int, int> getLinkFds() const { return {_c1_fd, _c2_fd}; }
+  LinkType getType() const { return _type; }
   string getTypeLiteral();
 
  private:
@@ -32,6 +43,20 @@ class NetLink {
   int _c1_fd{-1};
   int _c2_fd{-1};
   LinkType _type{LinkType::Pipe};
+
+  void pipeSetup() {
+    int pipefd[2];
+    if (pipe(pipefd) == -1) {
+      perror("pipe");
+      exit(EXIT_FAILURE);
+    }
+    _c1_fd = pipefd[0];
+    _c2_fd = pipefd[1];
+  }
+
+  void socketSetup() {
+    // Stub for socketSetup
+  }
 };  // End of NetLink class
 
 //////// NETNODE BEGIN ////////
@@ -110,7 +135,9 @@ class Network {
           cout << color_codes[BLUE].code;  // Set to color BLUE
           cout << "\tLink " << link->getId() << " is a "
                << link->getTypeLiteral() << " from " << link->getNodeIds().first
-               << " → " << link->getNodeIds().second << endl;
+               << "(" << link->getLinkFds().first << ")"
+               << " → " << link->getNodeIds().second << "("
+               << link->getLinkFds().second << ")" << endl;
         }
       }
       cout << color_codes[BOLD_GREEN].reset;  // Reset to color default
@@ -119,6 +146,12 @@ class Network {
            << color_codes[RED].reset << endl;
     }
   }
+
+  void createAndAddLink(char c_linkType, int con1, int con2);
+  void createAndAddNode(char c_nodeType, int nodeId);
+  void createAndAddManagerLink(int nodeId);
+  void processNodesSection(std::ifstream& configFile);
+  void processLinksSection(std::ifstream& configFile);
 
   // netInit -- parses config file and builds the network topology
   std::vector<std::unique_ptr<NetNode>> netInit(std::string configFileName);

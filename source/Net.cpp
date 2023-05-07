@@ -45,7 +45,77 @@ void NetNode::addLink(int id, int node1Id, int node2Id,
 ///////////////////////////////
 //////// NETWORK BEGIN ////////
 
-// netInit -- parses config file and builds the network topology
+void Network::processNodesSection(std::ifstream& configFile) {
+  std::string line;
+  while (std::getline(configFile, line) && line != "Links:") {
+    if (line.empty()) continue;
+    char c_nodeType;
+    int nodeId;
+    std::istringstream iss(line);
+    iss >> c_nodeType >> nodeId;
+    createAndAddNode(c_nodeType, nodeId);
+  }
+}
+
+void Network::processLinksSection(std::ifstream& configFile) {
+  std::string line;
+  while (std::getline(configFile, line)) {
+    if (line.empty()) continue;
+    char c_linkType;
+    int con1;
+    int con2;
+    std::istringstream iss(line);
+    iss >> c_linkType >> con1 >> con2;
+    createAndAddLink(c_linkType, con1, con2);
+  }
+}
+
+void Network::createAndAddNode(char c_nodeType, int nodeId) {
+  numNodes++;
+  std::unique_ptr<NetNode> newNode;
+  switch (c_nodeType) {
+    case 'H':
+      newNode = std::make_unique<NetNode>(nodeId, NetNode::NodeType::Host);
+      createAndAddManagerLink(nodeId);
+      break;
+    case 'S':
+      newNode = std::make_unique<NetNode>(nodeId, NetNode::NodeType::Switch);
+      break;
+    case 'D':
+      newNode = std::make_unique<NetNode>(nodeId, NetNode::NodeType::DNServer);
+      break;
+  }
+  addNode(std::move(newNode));
+}
+
+void Network::createAndAddLink(char c_linkType, int con1, int con2) {
+  numLinks++;
+  auto n1 = getNodeById(con1);
+  auto n2 = getNodeById(con2);
+  std::shared_ptr<NetLink> link;
+  switch (c_linkType) {
+    case 'P':
+      link = std::make_shared<NetLink>(numLinks, con1, con2,
+                                       NetLink::LinkType::Pipe);
+      break;
+    case 'S':
+      link = std::make_shared<NetLink>(numLinks, con1, con2,
+                                       NetLink::LinkType::Socket);
+      break;
+  }
+  if (n1) n1->addLink(link);
+  if (n2) n2->addLink(link);
+}
+
+void Network::createAndAddManagerLink(int nodeId) {
+  auto managerLink =
+      std::make_shared<NetLink>(numLinks, -1, nodeId, NetLink::LinkType::Pipe);
+  numLinks++;
+  this->_manager.addLink(managerLink);
+  auto newNode = getNodeById(nodeId);
+  if (newNode) newNode->addLink(managerLink);
+}
+
 std::vector<std::unique_ptr<NetNode>> Network::netInit(
     std::string configFileName) {
   std::vector<std::unique_ptr<NetNode>> netNodes;

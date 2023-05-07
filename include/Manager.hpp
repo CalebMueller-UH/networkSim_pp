@@ -23,6 +23,8 @@ class Manager {
 
   std::set<std::shared_ptr<NetLink>> getLinks() const { return _links; }
 
+  void createAndAddManagerLink(int nodeId);
+
  private:
   std::set<std::shared_ptr<NetLink>> _links;
 };  // End of Manager class
