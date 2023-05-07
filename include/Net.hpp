@@ -16,8 +16,8 @@ using namespace std;
 class NetLink {
  public:
   enum class LinkType { Pipe, Socket };
-  NetLink(int id, int node1Id, int node2Id)
-      : _id{id}, _node1Id{node1Id}, _node2Id{node2Id} {}
+  NetLink(int id, int node1Id, int node2Id, LinkType type = LinkType::Pipe)
+      : _id{id}, _node1Id{node1Id}, _node2Id{node2Id}, _type{type} {}
 
   int getId() const { return _id; }
   LinkType getType() const { return _type; }
@@ -36,6 +36,7 @@ class NetNode {
   // Getters //
   enum class NodeType { Host, Switch, DNServer };
   NetNode(int id) : _id{id} {}
+  NetNode(int id, NodeType type) : _id{id}, _type{type} {}
 
   int getId() const { return _id; }
   NodeType getType() const { return _type; }
@@ -60,7 +61,8 @@ class NetNode {
   }
 
   // Specify arguments, and create the link to add
-  void addLink(int id, int node1Id, int node2Id) {
+  void addLink(int id, int node1Id, int node2Id,
+               NetLink::LinkType type = NetLink::LinkType::Pipe) {
     std::unique_ptr<NetLink> link(new NetLink(id, node1Id, node2Id));
     links.push_back(std::move(link));
   }
@@ -99,7 +101,7 @@ class Network {
     cout << color_codes[BOLD_GREEN].code;
     for (auto& node : nodes) {
       cout << "Node " << node->getId() << " has " << node->getLinks().size()
-           << " links." << endl;
+           << " link" << ((node->getLinks().size() > 1) ? "s." : ".") << endl;
       for (auto& link : node->getLinks()) {
         cout << "\tLink " << link->getId() << ": from "
              << link->getNodeIds().first << " → " << link->getNodeIds().second

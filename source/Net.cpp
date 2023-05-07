@@ -63,35 +63,58 @@ std::vector<std::unique_ptr<NetNode>> Network::netInit(
       continue;
     }
 
-    char nodeType;
-    int nodeId;
-    std::istringstream iss(line);
-    iss >> nodeType >> nodeId;
-
     if (isNodesSection) {
+      char c_nodeType;
+      int nodeId;
+      std::istringstream iss(line);
+      iss >> c_nodeType >> nodeId;
       numNodes++;
-
-      switch (nodeType) {
+      std::unique_ptr<NetNode> newNode;
+      switch (c_nodeType) {
         case 'H':
-          // Add code for initializing H type NetNode
+          newNode = std::make_unique<NetNode>(nodeId, NetNode::NodeType::Host);
           break;
         case 'S':
-          // Add code for initializing S type NetNode
+          newNode =
+              std::make_unique<NetNode>(nodeId, NetNode::NodeType::Switch);
           break;
         case 'D':
-          // Add code for initializing D type NetNode
+          newNode =
+              std::make_unique<NetNode>(nodeId, NetNode::NodeType::DNServer);
           break;
       }
+      addNode(std::move(newNode));
     } else if (isLinksSection) {  // Links section
+      char c_linkType;
+      int con1;
+      int con2;
+      std::istringstream iss(line);
+      iss >> c_linkType >> con1 >> con2;
       numLinks++;
 
-      switch (nodeType) {
+      // Find the nodes with the corresponding IDs
+      auto n1 = getNodeById(con1);
+      auto n2 = getNodeById(con2);
+
+      // Create the link and add it to each node
+      switch (c_linkType) {
         case 'P':
-          // Add code for handling P type link
+          if (n1) {
+            n1->addLink(NetLink(numLinks, con1, con2, NetLink::LinkType::Pipe));
+          }
+          if (n2) {
+            n2->addLink(NetLink(numLinks, con1, con2, NetLink::LinkType::Pipe));
+          }
           break;
         case 'S':
-          // Add code for handling S type link
-          break;
+          if (n1) {
+            n1->addLink(
+                NetLink(numLinks, con1, con2, NetLink::LinkType::Socket));
+          }
+          if (n2) {
+            n2->addLink(
+                NetLink(numLinks, con1, con2, NetLink::LinkType::Socket));
+          }
       }
     }
   }
@@ -99,5 +122,6 @@ std::vector<std::unique_ptr<NetNode>> Network::netInit(
   colorPrint(GREEN, "Number of Nodes = %d\n", numNodes);
   colorPrint(GREEN, "Number of Links = %d\n", numLinks);
 
+  printNetwork();
   return netNodes;
 }  // End of netInit()
