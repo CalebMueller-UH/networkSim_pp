@@ -16,8 +16,8 @@ string NetNode::getTypeLiteral() {
       return "Host";
     case NodeType::Switch:
       return "Switch";
-    case NodeType::DNServer:
-      return "DNServer";
+    case NodeType::DNS:
+      return "DNS";
     default:
       return "Unknown Node Type";
   }

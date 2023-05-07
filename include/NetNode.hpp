@@ -19,7 +19,7 @@
 class NetNode {
  public:
   // Type Enum //
-  enum class NodeType { Host, Switch, DNServer };
+  enum class NodeType { Host, Switch, DNS };
 
   // Constructors //
   NetNode(int id) : _id{id} {}

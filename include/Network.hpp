@@ -11,11 +11,14 @@
 #include <vector>
 
 #include "Color.hpp"
+#include "DNSNode.hpp"
 #include "Helpers.hpp"
+#include "HostNode.hpp"
 #include "Logger.hpp"
 #include "Manager.hpp"
 #include "NetLink.hpp"
 #include "NetNode.hpp"
+#include "SwitchNode.hpp"
 
 using namespace std;
 

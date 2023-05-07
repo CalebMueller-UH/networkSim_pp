@@ -25,9 +25,6 @@ class NetLink {
   // Constructors //
   NetLink(int id, int node1Id, int node2Id, LinkType type);
 
-  // Virtual Destructor //
-  // virtual ~NetLink() {}
-
   // Getters //
   int getId() const { return _id; }
   int get_end1() const { return _end1; }

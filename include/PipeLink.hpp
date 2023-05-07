@@ -17,9 +17,6 @@ class PipeLink : public NetLink {
   PipeLink(int id, int node1Id, int node2Id)
       : NetLink(id, node1Id, node2Id, LinkType::Pipe) {}
 
-  // Destructor //
-  // ~PipeLink() override {}
-
  private:
   void connect();
   std::string recv(int recipientId, size_t maxLen);

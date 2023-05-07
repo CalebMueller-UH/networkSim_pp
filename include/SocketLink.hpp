@@ -8,9 +8,6 @@ class SocketLink : public NetLink {
   SocketLink(int id, int node1Id, int node2Id)
       : NetLink(id, node1Id, node2Id, LinkType::Socket) {}
 
-  // Destructor //
-  // ~SocketLink() override {}
-
   std::string recv(int recipientId, size_t maxLen) {
     // Stub
     return nullptr;

@@ -32,6 +32,9 @@ void Network::printNetwork() const {
            << " and has " << node->getLinks().size() << " link"
            << ((node->getLinks().size() > 1) ? "s." : ".") << endl;
       for (auto& link : node->getLinks()) {
+        if (link == nullptr) {
+          continue;  // skip null pointers
+        }
         cout << color_codes[BLUE].code;  // Set to color BLUE
         cout << "\tLink " << link->getId() << " is a " << link->getTypeLiteral()
              << " from " << link->getNodeIds().first << " → "
@@ -43,7 +46,7 @@ void Network::printNetwork() const {
     cout << color_codes[RED].code << "Network is Empty"
          << color_codes[RED].reset << endl;
   }
-}  // End of Network::printNetwork()
+}
 
 int Network::netInit(std::string configFileName) {
   std::vector<std::unique_ptr<NetNode>> netNodes;
@@ -93,7 +96,6 @@ int Network::netInit(std::string configFileName) {
 
     if (isNodesSection) {
       numNodes++;  // Count the number of nodes
-
       // Define variables to parse node info into
       char c_nodeType;
       int nodeId;
@@ -104,12 +106,15 @@ int Network::netInit(std::string configFileName) {
       // Initialize depending on node type
       switch (c_nodeType) {
         case 'H': {
+          newNode = std::make_unique<HostNode>(nodeId);
           break;
         }
         case 'S': {
+          newNode = std::make_unique<SwitchNode>(nodeId);
           break;
         }
         case 'D': {
+          newNode = std::make_unique<DNSNode>(nodeId);
           break;
         }
       }
