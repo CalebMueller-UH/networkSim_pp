@@ -29,7 +29,7 @@ class Logger {
 
   // Template function for logging formatted strings or arbitrary variable types
   template <typename... Args>
-  int record(Priority priority, Args... args) {
+  int log(Priority priority, Args... args) {
     if (priority < minLogLevel) {
       return 0;
     }
@@ -62,15 +62,15 @@ class Logger {
 
   // Template function that handles arguments given with no explicit priority
   template <typename... Args>
-  int record(Args... args) {
-    return record(defaultLogLevel, args...);
+  int log(Args... args) {
+    return log(defaultLogLevel, args...);
   }
 
   template <typename... Args>
   int conditionalRecord(bool condition, string input, Priority priority,
                         Args... args) {
     if (condition) {
-      return record(priority, input, args...);
+      return log(priority, input, args...);
     }
     return 0;
   }

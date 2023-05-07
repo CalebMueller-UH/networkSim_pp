@@ -26,8 +26,8 @@ std::vector<std::unique_ptr<NetNode>> Network::netInit(
   if (!fileExists(configFileName)) {
     std::cerr << "Error: Config file not found: " << configFileName
               << std::endl;
-    netLog.record(Logger::Priority::Error,
-                  "Error: Config file not found:", configFileName);
+    netLog.log(Logger::Priority::Error,
+               "Error: Config file not found:", configFileName);
     return netNodes;
   }
 
@@ -36,8 +36,8 @@ std::vector<std::unique_ptr<NetNode>> Network::netInit(
   if (!configFile.is_open()) {
     std::cerr << "Error: Unable to open config file: " << configFileName
               << std::endl;
-    netLog.record(Logger::Priority::Error,
-                  "Error: Unable to open config file:", configFileName);
+    netLog.log(Logger::Priority::Error,
+               "Error: Unable to open config file:", configFileName);
     return netNodes;
   }
 
